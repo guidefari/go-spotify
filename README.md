@@ -7,3 +7,4 @@
 
 # todo
 - [ ] refactor code to have reusable auth file
+- [ ] find out wtf a channel is
