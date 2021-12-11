@@ -8,3 +8,5 @@
 # todo
 - [ ] refactor code to have reusable auth file
 - [ ] find out wtf a channel is
+- [ ] brush up on oAuth
+- [ ] brush up on import/exports of packages
