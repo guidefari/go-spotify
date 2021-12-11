@@ -16,9 +16,8 @@ import (
 	"strings"
 
 	"github.com/joho/godotenv"
-	spotifyauth "github.com/zmb3/spotify/v2/auth"
-
 	"github.com/zmb3/spotify/v2"
+	spotifyauth "github.com/zmb3/spotify/v2/auth"
 )
 
 // redirectURI is the OAuth redirect URI for the application.
@@ -36,24 +35,36 @@ var html = `
 
 `
 
+// initial global values
 var (
 	auth  = spotifyauth.New(
 		spotifyauth.WithRedirectURL(redirectURI),
 		spotifyauth.WithScopes(spotifyauth.ScopeUserReadCurrentlyPlaying, spotifyauth.ScopeUserReadPlaybackState, spotifyauth.ScopeUserModifyPlaybackState),
-		spotifyauth.WithClientID(os.Getenv("SPOTIFY_ID")),
-		spotifyauth.WithClientSecret(os.Getenv("SPOTIFY_SECRET")),
 		)
 	ch    = make(chan *spotify.Client)
 	state = "abc123"
 )
 
-func main() {
-	
-  if err := godotenv.Load(); err != nil {
-    log.Fatal("Error loading .env file")
-  }
-	fmt.Println(os.Getenv("SPOTIFY_ID"))
+// init is invoked before main()
+func init() {
+	// loads values from .env into the system
+	if err := godotenv.Load(); err != nil {
+		log.Fatal("No .env file found")
+	}
 
+	// after env file has been loaded, we reassign those values
+	var SPOTIFY_ID = os.Getenv("SPOTIFY_ID")
+	var SPOTIFY_SECRET = os.Getenv("SPOTIFY_SECRET")
+	auth  = spotifyauth.New(
+		spotifyauth.WithRedirectURL(redirectURI),
+		spotifyauth.WithScopes(spotifyauth.ScopeUserReadCurrentlyPlaying, spotifyauth.ScopeUserReadPlaybackState, spotifyauth.ScopeUserModifyPlaybackState),
+		spotifyauth.WithClientID(SPOTIFY_ID),
+		spotifyauth.WithClientSecret(SPOTIFY_SECRET),
+		)
+	ch    = make(chan *spotify.Client)
+	state = "abc123"
+}
+func main() {	
 	
 
 	// We'll want these variables sooner rather than later
@@ -117,7 +128,7 @@ func main() {
 
 }
 
-func completeAuth(w http.ResponseWriter, r *http.Request) {
+func completeAuth(w http.ResponseWriter, r *http.Request ) {
 	tok, err := auth.Token(r.Context(), state, r)
 	if err != nil {
 		http.Error(w, "Couldn't get token", http.StatusForbidden)
